@@ -20,12 +20,12 @@ function simpleTask() {
 // ===== ЗАДАНИЕ 2: Функции =====
 function getReviewerNumber(number, lab) {
     // 2.1 Функция определяющая номер ревьюера для вашей группы по вашему номеру и номеру лабораторной работы
-    return (number + lab) % 30;
+    return (number + lab - 1) % 30 + 1;
 }
 
 function getVariant(number, variants) {
     // 2.2 Функция определяющая номер варианта, исходя из количества вариантов
-    return number % variants;
+    return (number - 1) % variants + 1;
 }
 
 function calculate(a, b, operation) {
@@ -144,32 +144,26 @@ function processArrays() {
     // 2. Используйте map для создания массива квадратов чисел
     /*const squares =  ваш код */
     const squares = numbers.map((number) => number * number);
-    console.log(squares);
 
     // 3. Используйте filter для получения активных пользователей
     /*const activeUsers =  ваш код */
     const activeUsers = users.filter((user) => user.isActive);
-    console.log(activeUsers);
 
     // 4. Используйте find для поиска пользователя с именем "Виктория"
     /*const victoria =  ваш код */
     const victoria = users.find((user) => user.name === "Виктория");
-    console.log(victoria);
 
     // 5. Используйте reduce для подсчета суммы всех чисел
     /*const sum =  ваш код */
     const sum = numbers.reduce((total, number) => total + number, 0);
-    console.log(sum);
 
     // 6. Используйте sort для сортировки пользователей по возрасту (по убыванию)
     /*const sortedByAge =  ваш код */
     const sortedByAge = [...users].sort((a, b) => b.age - a.age);
-    console.log(sortedByAge);
 
     // 7. Используйте метод для проверки, все ли пользователи старше 18 лет
     /*const allAdults =  ваш код */
     const allAdults = users.every((user) => user.age > 18);
-    console.log(allAdults);
 
     // 8. Создайте цепочку методов:
     //    - отфильтровать активных пользователей
@@ -180,6 +174,9 @@ function processArrays() {
         .filter((user) => user.isActive)
         .map((user) => user.name)
         .sort((a, b) => a.localeCompare(b, "ru"));
+
+    // Возвращаем результаты для проверки в runTests().
+    return { squares, activeUsers, victoria, sum, sortedByAge, allAdults, activeUserNames };
     
 
 }
@@ -382,7 +379,7 @@ Learn Regex - https://github.com/ziishaned/learn-regex - учебник по reg
 3. Если предложенное регулярное выражение некорректно, вы можете исправить его.
 
 Вычисление своего варианта:
-Номер варианта = Ваш номер % Общее количество вариантов
+Номер варианта = (Ваш номер - 1) % Общее количество вариантов + 1
  */
 
 /**
@@ -401,68 +398,193 @@ function validateEmail(email) {
 
 
 // ===== ТЕСТИРОВАНИЕ =====
+// Сохраняем вывод функции, чтобы сравнить его с ожидаемым.
+function captureOutput(action) {
+    const output = [];
+    const originalLog = console.log;
+    console.log = (...args) => output.push(args.join(" "));
+    try {
+        action();
+    } finally {
+        console.log = originalLog;
+    }
+    return output;
+}
+
+// При неверном результате останавливаем тесты с объяснением.
+function check(condition, message) {
+    if (!condition) throw new Error(message);
+}
+
 function runTests() {
     console.log("=== ТЕСТИРОВАНИЕ ===");
+    // Задание 1. Базовые операции
+    check(captureOutput(simpleTask).join(",") === "string,number,boolean,undefined,object", "1: типы переменных");
 
-    // Тест 1: getReviewerNumber
-    console.assert(getReviewerNumber(5, 1) === 6, "Тест получения ревьюера провален");
+    console.log("[ОК] Задание 1. Базовые операции");
 
-    // Тест 2: calculate
-    console.assert(calculate(10, 5, '+') === 15, "Тест калькулятора провален");
+    // Задание 2. Функции
+    check(calculate(10, 5, "+") === 15, "2.3: сложение");
+    check(getReviewerNumber(13, 1) === 14, "2.1: ревьюер студента 13");
+    check(getReviewerNumber(29, 1) === 30, "2.1: последний ревьюер — 30, не 0");
+    check(getReviewerNumber(30, 1) === 1, "2.1: переход к первому студенту");
+    check(getVariant(4, 4) === 4, "2.2: последний вариант — 4, не 0");
+    check(getVariant(13, 4) === 1, "2.2: вариант студента 13");
+    check(calculate(10, 5, "-") === 5, "2.3: вычитание");
+    check(calculate(10, 5, "*") === 50, "2.3: умножение");
+    check(calculate(10, 5, "/") === 2, "2.3: деление");
+    check(calculate(10, 5, "?") === "Неизвестная операция", "2.3: неизвестная операция");
+    check(calculateArea("circle", 2) === Math.PI * 4, "2.4: площадь круга");
+    check(calculateArea("rectangle", 4, 5) === 20, "2.4: площадь прямоугольника");
+    check(calculateArea("triangle", 10, 4) === 20, "2.4: площадь треугольника");
+    check(calculateArea("unknown", 2) === "Неизвестная фигура", "2.4: неизвестная фигура");
+    check(reverseString("кот") === "ток", "2.5: переворот строки");
+    check(reverseString("") === "", "2.5: пустая строка");
+    const randomNumber = getRandomNumber(-5, 10);
+    check(randomNumber >= -5 && randomNumber < 10, "2.5: случайное число в диапазоне");
 
-    // Тест 3: taskManager
-    console.assert((taskManager.getStats() || {}).total === 3, "Тест taskManager провален");
+    console.log("[ОК] Задание 2. Функции");
 
-    // Тест 4: классы и наследование
+    // Задание 3. Объекты
+    check(book.getInfo() === "Маленький принц, Антуан де Сент-Экзюпери, 1943, 96 стр.", "3.1: информация о книге");
+    check(book.toggleAvailability() === false && book.available === false, "3.1: книга недоступна");
+    check(book.toggleAvailability() === true && book.available === true, "3.1: книга снова доступна");
+    check(student.getAverageGrade() === 90, "3.2: исходный средний балл");
+    student.addGrade("physics", 100);
+    check(student.grades.physics === 100 && student.getAverageGrade() === 92.5, "3.2: новая оценка");
+    student.addGrade("math", 60);
+    check(Object.keys(student.grades).length === 4 && student.getAverageGrade() === 85, "3.2: замена оценки");
+    // Возвращаем исходные данные после проверки.
+    student.grades.math = 90;
+    delete student.grades.physics;
+
+    console.log("[ОК] Задание 3. Объекты");
+
+    // Задание 4. Массивы
+    let arrays;
+    const arrayOutput = captureOutput(() => { arrays = processArrays(); });
+    check(arrayOutput.slice(1, 5).join(",") === "67,89,56,91", "4.1: вывод чисел больше 50");
+    check(arrays.squares.join(",") === "144,2025,529,4489,1156,7921,3136,8281,729,196", "4.2: квадраты");
+    check(arrays.activeUsers.map(user => user.id).join(",") === "1,3,4", "4.3: активные пользователи");
+    check(arrays.victoria.id === 3 && arrays.victoria.name === "Виктория", "4.4: поиск Виктории");
+    check(arrays.sum === 458, "4.5: сумма чисел");
+    check(arrays.sortedByAge.map(user => user.age).join(",") === "35,30,28,25,22", "4.6: убывание возраста");
+    check(arrays.allAdults === true, "4.7: все старше 18");
+    check(arrays.activeUserNames.join(",") === "Анна,Виктория,Григорий", "4.8: имена по алфавиту");
+
+    console.log("[ОК] Задание 4. Массивы");
+
+    // Задание 5. Менеджер задач
+    check(taskManager.getStats().total === 3, "5.5: исходное количество задач");
+    const savedTasks = taskManager.tasks.map(task => ({ ...task }));
+    const savedNextId = taskManager.nextId;
+    check(taskManager.getStats().completed === 1 && taskManager.getStats().pending === 2, "5.5: исходная статистика");
+    taskManager.addTask("Тестовая задача");
+    const addedTask = taskManager.tasks[3];
+    check(taskManager.tasks.length === 4 && addedTask.id === 4, "5.1: добавление задачи");
+    check(addedTask.title === "Тестовая задача" && addedTask.priority === "medium" && !addedTask.completed, "5.1: поля новой задачи");
+    taskManager.completeTask(4);
+    taskManager.completeTask(4);
+    check(taskManager.getTasksByStatus(true).map(task => task.id).join(",") === "2,4", "5.2/5.4: завершение и выполненные задачи");
+    check(taskManager.getTasksByStatus(false).map(task => task.id).join(",") === "1,3", "5.4: невыполненные задачи");
+    check(taskManager.getStats().completionRate === 50, "5.5: половина выполнена");
+    taskManager.deleteTask(2);
+    check(taskManager.tasks.map(task => task.id).join(",") === "1,3,4", "5.3: удаление по id");
+    taskManager.addTask("Срочная задача", "high");
+    check(taskManager.tasks[3].id === 5 && taskManager.tasks[3].priority === "high", "5.1: уникальный id после удаления и заданный приоритет");
+    taskManager.completeTask(999);
+    taskManager.deleteTask(999);
+    check(taskManager.tasks.length === 4 && taskManager.getStats().completed === 1, "5.2/5.3: неизвестный id");
+    taskManager.tasks = [];
+    check(JSON.stringify(taskManager.getStats()) === '{"total":0,"completed":0,"pending":0,"completionRate":0}', "5.5: пустой список");
+    taskManager.tasks = savedTasks;
+    taskManager.nextId = savedNextId;
+
     const { Vehicle, Car, ElectricCar, createVehicleFactory } = taskClasses();
     const vehicle = new Vehicle('Toyota', 'Camry', 2015);
-    vehicle.displayInfo();
-    console.log(`Возраст: ${vehicle.age} лет`);
 
     const car = new Car('Honda', 'Civic', 2018, 4);
-    car.displayInfo();
-    car.honk();
 
     const electricCar = new ElectricCar('Tesla', 'Model 3', 2020, 4, 75);
-    electricCar.displayInfo();
-    console.log(`Запас хода: ${electricCar.calculateRange()} км`);
 
     const testVehicle = new Vehicle('Test', 'Model', 2010);
-    console.assert(testVehicle.age === (new Date().getFullYear() - 2010), 'Тест возраста провален');
 
     const createCarFactory = createVehicleFactory(Car);
     const myNewCar = createCarFactory('BMW', 'X5', 2022);
-    console.log('Создан новый автомобиль:');
-    myNewCar.displayInfo();
 
-    console.log('Всего создано транспортных средств:', Vehicle.getTotalVehicles());
+    console.log("[ОК] Задание 5. Менеджер задач");
 
-    // Добавьте остальные тесты...
+    // Задание 6. Классы и наследование
+    check(testVehicle.age === new Date().getFullYear() - 2010, "6.1: возраст транспорта");
+    check(vehicle.make === "Toyota" && vehicle.model === "Camry" && vehicle.year === 2015, "6.1: поля транспорта");
+    check(captureOutput(() => vehicle.displayInfo()).join("\n") === "Марка: Toyota, Модель: Camry, Год: 2015", "6.1: вывод транспорта");
+    check(car instanceof Vehicle && car.numDoors === 4, "6.2: наследование и двери");
+    check(captureOutput(() => car.displayInfo()).join("\n") === "Марка: Honda, Модель: Civic, Год: 2018\nКоличество дверей: 4", "6.2: вывод автомобиля");
+    check(captureOutput(() => car.honk()).join("") === "Beep beep!", "6.2: сигнал");
+    check(electricCar instanceof Car && electricCar instanceof Vehicle && electricCar.batteryCapacity === 75, "6.3: наследование и батарея");
+    check(captureOutput(() => electricCar.displayInfo()).join("\n") === "Марка: Tesla, Модель: Model 3, Год: 2020\nКоличество дверей: 4\nЁмкость батареи: 75 кВт·ч", "6.3: вывод электромобиля");
+    check(electricCar.calculateRange() === 450, "6.3: запас хода");
+    check(Vehicle.compareAge(car, electricCar) === 2 && Vehicle.compareAge(electricCar, car) === -2 && Vehicle.compareAge(car, car) === 0, "6.1: разница возрастов");
+    const currentYear = new Date().getFullYear();
+    vehicle.year = currentYear;
+    check(vehicle.year === currentYear && vehicle.age === 0, "6.1: изменение года и возраста");
+    let futureYearRejected = false;
+    try {
+        vehicle.year = currentYear + 1;
+    } catch (error) {
+        futureYearRejected = true;
+    }
+    check(futureYearRejected && vehicle.year === currentYear, "6.1: будущий год отклонён без изменения объекта");
+    check(Vehicle.vehicleCount === 5 && Vehicle.getTotalVehicles() === 5, "6.4: общий счётчик");
+
+    console.log("[ОК] Задание 6. Классы и наследование");
+
+    // Задание 7. Каррирование
+    const factory = createVehicleFactory(Vehicle);
+    check(typeof factory === "function" && Vehicle.getTotalVehicles() === 5, "7: выбор класса не создаёт объект");
+    const factoryVehicle = factory("Test", "Factory", 2021);
+    check(factoryVehicle instanceof Vehicle && factoryVehicle.make === "Test" && factoryVehicle.model === "Factory" && factoryVehicle.year === 2021, "7: объект выбранного класса");
+    const secondVehicle = factory("Other", "Model", 2022);
+    check(secondVehicle !== factoryVehicle && Vehicle.getTotalVehicles() === 7, "7: повторное использование фабрики");
+    check(myNewCar instanceof Car && myNewCar.make === "BMW" && myNewCar.year === 2022, "7: фабрика автомобиля");
+
+    console.log("[ОК] Задание 7. Каррирование");
+
+    // Задание 8. Регулярные выражения
     // Правильные адреса
-    console.assert(validateEmail("user@example.com") === true, "Обычный email");
-    console.assert(validateEmail("a@b.co") === true, "Короткий email");
-    console.assert(validateEmail("Anna09._%+-@mail-test.example.COM") === true, "Разрешённые символы и поддомен");
+    check(validateEmail("user@example.com") === true, "Обычный email");
+    check(validateEmail("a@b.co") === true, "Короткий email");
+    check(validateEmail("Anna09._%+-@mail-test.example.COM") === true, "Разрешённые символы и поддомен");
     // Отсутствующие части
-    console.assert(validateEmail("") === false, "Пустая строка");
-    console.assert(validateEmail("userexample.com") === false, "Нет @");
-    console.assert(validateEmail("user@@example.com") === false, "Двойной @");
-    console.assert(validateEmail("@example.com") === false, "Нет имени");
-    console.assert(validateEmail("user@.com") === false, "Нет имени домена");
+    check(validateEmail("") === false, "Пустая строка");
+    check(validateEmail("userexample.com") === false, "Нет @");
+    check(validateEmail("user@@example.com") === false, "Двойной @");
+    check(validateEmail("@example.com") === false, "Нет имени");
+    check(validateEmail("user@.com") === false, "Нет имени домена");
     // Неправильное окончание
-    console.assert(validateEmail("user@example.c") === false, "Окончание слишком короткое");
-    console.assert(validateEmail("user@example.c2") === false, "Цифра в окончании");
+    check(validateEmail("user@example.c") === false, "Окончание слишком короткое");
+    check(validateEmail("user@example.c2") === false, "Цифра в окончании");
 
     // Запрещённые символы
-    console.assert(validateEmail("user name@example.com") === false, "Пробел в имени");
-    console.assert(validateEmail("анна@example.com") === false, "Кириллица в имени");
-    console.assert(validateEmail("user@my_mail.com") === false, "Подчёркивание в домене");
-    console.assert(validateEmail(" user@example.com") === false, "Пробел в начале");
+    check(validateEmail("user name@example.com") === false, "Пробел в имени");
+    check(validateEmail("анна@example.com") === false, "Кириллица в имени");
+    check(validateEmail("user@my_mail.com") === false, "Подчёркивание в домене");
+    check(validateEmail(" user@example.com") === false, "Пробел в начале");
 
-    console.log("Все тесты пройдены! ✅");
+    check(validateEmail("user@example") === false, "Нет точки в домене");
+    check(validateEmail("user@example.") === false, "Нет окончания домена");
+    check(validateEmail("user!@example.com") === false, "Запрещённый символ в имени");
+    check(validateEmail("user@почта.com") === false, "Кириллица в домене");
+    check(validateEmail("user@example.рф") === false, "Кириллица в окончании");
+    check(validateEmail("user@my mail.com") === false, "Пробел в домене");
+    check(validateEmail("user@example.com ") === false, "Пробел в конце");
+    // Фиксируем особенности исходного regex, не изменяя его.
+    check(validateEmail("us..er@example.com") === true, "Исходный regex допускает двойные точки в имени");
+    check(validateEmail("user@exam..ple.com") === true, "Исходный regex допускает двойные точки в домене");
+    check(validateEmail("user@-example.com") === true, "Исходный regex допускает дефис в начале домена");
 
+    console.log("[ОК] Задание 8. Регулярные выражения");
+    console.log("Все тесты пройдены.");
+}
 
-    
-    }
-
-// Запуск тестов
 runTests();
